@@ -15,7 +15,7 @@ export default defineConfig({
   },
   // Base path for GitHub Pages - change to your repository name
   // If deploying to a custom domain, you can set this to '/'
-  base: '/xct/', // or '/' if using custom domain
+  base: '/', // or '/' if using custom domain
 
   // Build configuration
   build: {
@@ -24,13 +24,13 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['vue', 'vue-router', 'marked', 'gray-matter'],
+          vendor: ['vue', 'vue-router'],
           markdown: ['marked', 'gray-matter'],
         },
       },
     },
     // Generate .nojekyll file to prevent GitHub Pages from using Jekyll
-    outDir: 'dist',
+    outDir: 'docs',
     emptyOutDir: true,
   },
 
