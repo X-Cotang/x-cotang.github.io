@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 
 // Typewriter effect for the main slogan
-const mainSlogan = 'EXPLORING THE DIGITAL FRONTIER'
+const mainSlogan = 'EXPLORING THE WORLD'
 const displayedSlogan = ref('')
 const slogan2 = ref('SECURITY • TECHNOLOGY • FINANCE')
 let typewriterInterval = null
@@ -19,15 +19,7 @@ onMounted(() => {
       clearInterval(typewriterInterval)
     }
   }, 100)
-
-  // Initialize the 3D grid effect
-  initGrid()
 })
-
-function initGrid() {
-  // This function will set up a 3D grid effect
-  // Implementation would go here, but for simplicity we'll use CSS animations
-}
 </script>
 
 <template>
@@ -55,10 +47,13 @@ function initGrid() {
         </div>
       </div>
 
-      <!-- Animated geometric element -->
-      <div class="geometric-element">
-        <div class="grid-container">
-          <div v-for="n in 50" :key="n" class="grid-cell"></div>
+      <!-- Interactive Particle Network -->
+      <div class="hearts-container">
+        <div class="heart-wrapper">
+          <div class="heart-group">
+            <div class="heart heart-main"></div>
+            <div class="heart heart-background"></div>
+          </div>
         </div>
       </div>
     </section>
@@ -346,62 +341,111 @@ function initGrid() {
   color: var(--primary-color);
 }
 
-/* Geometric Element */
-.geometric-element {
+/* Interactive Particle Network */
+.hearts-container {
   position: absolute;
   right: 0;
   width: 55%;
   height: 100%;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.grid-container {
+.heart-wrapper {
   position: relative;
+  width: 300px;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heart-group {
+  position: relative;
+  width: 150px;
+  height: 150px;
+}
+
+.heart {
+  position: absolute;
   width: 100%;
   height: 100%;
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  grid-template-rows: repeat(10, 1fr);
-  perspective: 1000px;
-  transform-style: preserve-3d;
+  background: currentColor;
+  transform-origin: center;
 }
 
-.grid-cell {
-  position: relative;
-  border: 1px solid var(--subtle-border-color);
-  transform-style: preserve-3d;
-  transition: all 1.5s cubic-bezier(0.19, 1, 0.22, 1);
-  animation: pulse 3s infinite alternate;
-  animation-delay: calc(var(--delay, 0) * 0.1s);
+.heart::before,
+.heart::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: inherit;
+  border-radius: 50%;
 }
 
-.grid-cell:nth-child(2n) {
-  --delay: 1;
+.heart::before {
+  left: -50%;
 }
 
-.grid-cell:nth-child(3n) {
-  --delay: 2;
+.heart::after {
+  top: -50%;
 }
 
-.grid-cell:nth-child(5n) {
-  --delay: 3;
+.heart-main {
+  color: var(--primary-color);
+  transform: rotate(45deg);
+  animation: heartBeat 1.2s ease-in-out infinite;
+  z-index: 2;
 }
 
-.grid-cell:hover {
-  background-color: var(--hover-bg-color);
-  transform: translateZ(20px);
-  border-color: var(--secondary-color);
+.heart-background {
+  color: var(--secondary-color);
+  transform: rotate(45deg) scale(0.9);
+  animation: heartBeatBg 1.2s ease-in-out infinite;
+  animation-delay: 0.3s;
+  z-index: 1;
 }
 
-@keyframes pulse {
-  0% {
-    opacity: 0.1;
-    transform: translateZ(0);
-  }
+@keyframes heartBeat {
+  0%,
   100% {
-    opacity: 0.3;
-    transform: translateZ(10px);
+    transform: rotate(45deg) scale(0.9);
   }
+  50% {
+    transform: rotate(45deg) scale(1);
+  }
+}
+
+@keyframes heartBeatBg {
+  0%,
+  100% {
+    transform: rotate(45deg) scale(0.85);
+    opacity: 0.5;
+  }
+  50% {
+    transform: rotate(45deg) scale(0.95);
+    opacity: 0.7;
+  }
+}
+
+/* Add these styles to ensure theme compatibility */
+:root[data-theme='light'] .heart-main {
+  filter: drop-shadow(0 0 8px rgba(var(--primary-color-rgb), 0.3));
+}
+
+:root[data-theme='light'] .heart-background {
+  filter: drop-shadow(0 0 8px rgba(var(--secondary-color-rgb), 0.3));
+}
+
+:root[data-theme='dark'] .heart-main {
+  filter: drop-shadow(0 0 12px rgba(var(--primary-color-rgb), 0.4));
+}
+
+:root[data-theme='dark'] .heart-background {
+  filter: drop-shadow(0 0 12px rgba(var(--secondary-color-rgb), 0.4));
 }
 
 /* Featured Section */
@@ -685,10 +729,6 @@ function initGrid() {
     width: 60%;
   }
 
-  .geometric-element {
-    width: 50%;
-  }
-
   .featured-cards,
   .latest-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -712,22 +752,6 @@ function initGrid() {
     order: 2;
   }
 
-  .geometric-element {
-    width: 100%;
-    height: 300px;
-    position: relative;
-    order: 1;
-    margin-bottom: 3rem;
-  }
-
-  .hero-buttons {
-    justify-content: center;
-  }
-
-  .main-title {
-    font-size: 2.5rem;
-  }
-
   .featured-cards,
   .latest-grid {
     grid-template-columns: 1fr;
@@ -740,6 +764,24 @@ function initGrid() {
 
   .newsletter-form {
     flex-direction: column;
+  }
+
+  .hearts-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    order: 1;
+    margin-bottom: 3rem;
+  }
+
+  .heart-wrapper {
+    width: 200px;
+    height: 200px;
+  }
+
+  .heart-group {
+    width: 100px;
+    height: 100px;
   }
 }
 </style>
