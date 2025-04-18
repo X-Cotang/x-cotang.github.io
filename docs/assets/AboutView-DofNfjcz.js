@@ -1,1 +1,0 @@
-import{_ as o}from"./index-pL8pyJjx.js";import{c as t,a as s,h as a}from"./vendor-4AoAK_Kz.js";import"./markdown-JKvyS0Pp.js";const r={},n={class:"about"};function c(i,e){return a(),t("div",n,e[0]||(e[0]=[s("h1",null,"This is an about page",-1)]))}const m=o(r,[["render",c]]);export{m as default};
