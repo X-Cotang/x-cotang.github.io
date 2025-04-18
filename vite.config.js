@@ -30,6 +30,7 @@ export default defineConfig({
       },
     },
     // Generate .nojekyll file to prevent GitHub Pages from using Jekyll
+    outDir: 'docs',
     emptyOutDir: true,
   },
 
