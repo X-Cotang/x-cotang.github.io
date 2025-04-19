@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
+import BuyMeCoffeeButton from './components/BuyMeCoffeeButton.vue'
 
 const currentTheme = ref('dark') // Default theme
 
@@ -110,7 +111,10 @@ onMounted(() => {
 
     <footer class="sci-fi-footer">
       <div class="footer-content">
-        <p class="footer-text">© 2024 XCT - Exploring the Future</p>
+        <div class="footer-left">
+          <p class="footer-text">© 2024 XCT - Exploring the Future</p>
+          <BuyMeCoffeeButton />
+        </div>
         <div class="footer-links">
           <a href="#" class="footer-link">
             <span class="link-text" data-text="GitHub">GitHub</span>
@@ -493,15 +497,11 @@ body::before {
 
 .sci-fi-footer {
   background: var(--footer-bg-color);
-  backdrop-filter: none;
   border-top: 1px solid var(--subtle-border-color);
-  padding: 2rem 0;
-  box-shadow: none;
-  position: relative; /* Ensure content is above body::before */
+  padding: 1.5rem 0;
+  position: relative;
   z-index: 1;
-  transition:
-    background-color var(--transition-speed) ease,
-    border-color var(--transition-speed) ease; /* Smooth theme transition */
+  overflow: hidden;
 }
 
 .footer-content {
@@ -511,16 +511,38 @@ body::before {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 2rem;
+  position: relative;
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  animation: slideInLeft 0.6s ease-out both;
 }
 
 .footer-text {
   color: var(--text-muted-color);
   font-size: 0.9rem;
+  position: relative;
+  padding-left: 1.5rem;
+  white-space: nowrap;
+}
+
+.footer-text::before {
+  content: '>';
+  position: absolute;
+  left: 0;
+  color: var(--secondary-color);
+  opacity: 0.6;
+  animation: pulseOpacity 2s infinite;
 }
 
 .footer-links {
   display: flex;
   gap: 2rem;
+  animation: slideInRight 0.6s ease-out both;
 }
 
 .footer-link {
@@ -528,57 +550,163 @@ body::before {
   text-decoration: none;
   color: var(--text-color);
   font-size: 0.9rem;
-  transition: color var(--transition-speed) ease;
-  overflow: hidden;
+  padding: 0.25rem 0;
+  transition: all var(--transition-speed) ease;
 }
 
-/* Remove glitch styles from footer links */
-.footer-link .link-text::before,
-.footer-link .link-text::after {
-  /* Remove glitch properties */
-  display: none; /* Hide the pseudo-elements */
-  /* content: none;
-  position: static;
-  animation: none;
-  text-shadow: none;
-  clip-path: none; */
+/* Enhanced link hover effect */
+.footer-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -0.5rem;
+  width: 2px;
+  height: 100%;
+  background: var(--secondary-color);
+  transform: scaleY(0);
+  transition: transform 0.2s ease;
 }
 
-.footer-link:hover .link-text::before,
-.footer-link:hover .link-text::after {
-  /* Remove hover enhancement related to glitch intensity */
-  /* --glitch-intensity: 2; */ /* Remove glitch intensity change */
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+.footer-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--primary-color);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
 }
 
-.footer-link:hover .link-text {
+.footer-link:hover {
   color: var(--primary-color);
-  text-shadow: none;
+  transform: translateX(0.5rem);
 }
 
-.footer-link:hover .link-underline {
+.footer-link:hover::before {
+  transform: scaleY(1);
+}
+
+.footer-link:hover::after {
   transform: scaleX(1);
   transform-origin: left;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .nav-content {
-    padding: 0 1.5rem;
-  }
+/* Buy Me Coffee button enhancements */
+.bmc-button {
+  position: relative;
+  display: inline-block;
+  transition: all 0.3s ease;
+  animation: float 3s ease-in-out infinite;
+}
 
-  .nav-links {
+.bmc-button::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  background: linear-gradient(
+    45deg,
+    var(--secondary-color) 0%,
+    transparent 40%,
+    transparent 60%,
+    var(--accent-color) 100%
+  );
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.bmc-button:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.bmc-button:hover::after {
+  opacity: 0.2;
+}
+
+.bmc-button img {
+  height: 50px;
+  width: auto;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+/* Updated animations */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulseOpacity {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
     gap: 1.5rem;
   }
 
-  .footer-content {
+  .footer-left {
     flex-direction: column;
+    align-items: center;
     gap: 1rem;
-    text-align: center;
+  }
+
+  .footer-text {
+    padding-left: 0;
+  }
+
+  .footer-text::before {
+    display: none;
   }
 
   .footer-links {
     justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .footer-link:hover {
+    transform: translateX(0);
   }
 }
 

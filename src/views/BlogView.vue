@@ -69,7 +69,7 @@
 
       <div class="posts-list">
         <article
-          v-for="article in filteredArticles"
+          v-for="article in paginatedPosts"
           :key="article.id"
           class="post-card"
           @click="navigateToPost(article.slug)"
@@ -92,6 +92,43 @@
             </div>
           </div>
         </article>
+
+        <div v-if="totalPages > 1" class="pagination">
+          <div class="pagination-info">
+            Showing {{ (currentPage - 1) * postsPerPage + 1 }} -
+            {{ Math.min(currentPage * postsPerPage, filteredArticles.length) }}
+            of {{ filteredArticles.length }} posts
+          </div>
+
+          <div class="pagination-controls">
+            <button
+              class="page-btn"
+              :disabled="currentPage === 1"
+              @click="changePage(currentPage - 1)"
+            >
+              <span class="btn-text">Previous</span>
+            </button>
+
+            <div class="page-numbers">
+              <button
+                v-for="page in totalPages"
+                :key="page"
+                :class="['page-number', { active: page === currentPage }]"
+                @click="changePage(page)"
+              >
+                {{ page }}
+              </button>
+            </div>
+
+            <button
+              class="page-btn"
+              :disabled="currentPage === totalPages"
+              @click="changePage(currentPage + 1)"
+            >
+              <span class="btn-text">Next</span>
+            </button>
+          </div>
+        </div>
       </div>
     </main>
   </div>
@@ -110,6 +147,9 @@ const recentPosts = ref([])
 
 const selectedCategory = ref('all')
 const selectedSubCategory = ref('')
+
+const postsPerPage = ref(6)
+const currentPage = ref(1)
 
 onMounted(async () => {
   const { posts, categories: loadedCategories } = await loadBlogPosts()
@@ -142,6 +182,16 @@ const filteredArticles = computed(() => {
   return filtered
 })
 
+const paginatedPosts = computed(() => {
+  const start = (currentPage.value - 1) * postsPerPage.value
+  const end = start + postsPerPage.value
+  return filteredArticles.value.slice(start, end)
+})
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredArticles.value.length / postsPerPage.value)
+})
+
 const formatDate = (dateString) => {
   const options = { year: 'numeric', month: 'short', day: 'numeric' }
   return new Date(dateString).toLocaleDateString(undefined, options)
@@ -158,6 +208,15 @@ const selectCategory = (categoryId) => {
 const selectSubCategory = (subCategoryName) => {
   selectedSubCategory.value = subCategoryName
 }
+
+const changePage = (page) => {
+  currentPage.value = page
+  document.querySelector('.posts-list')?.scrollIntoView({ behavior: 'smooth' })
+}
+
+watch([searchQuery, selectedCategory, selectedSubCategory], () => {
+  currentPage.value = 1
+})
 </script>
 
 <style scoped>
@@ -602,5 +661,99 @@ const selectSubCategory = (subCategoryName) => {
   .subcategory-list {
     margin-left: 1rem;
   }
+
+  .pagination-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .page-numbers {
+    order: 2;
+    width: 100%;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .page-number {
+    min-width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-numbers .page-number:not(.active):not(:first-child):not(:last-child) {
+    display: none;
+  }
+}
+
+.pagination {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pagination-info {
+  color: var(--text-muted-color);
+  font-size: 0.9rem;
+  font-family: var(--monospace-font);
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.page-numbers {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.page-btn,
+.page-number {
+  background: transparent;
+  border: 1px solid var(--subtle-border-color);
+  color: var(--text-color);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--transition-speed) ease;
+  font-family: var(--monospace-font);
+  font-size: 0.9rem;
+}
+
+.page-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-btn:not(:disabled):hover,
+.page-number:hover {
+  border-color: var(--primary-color);
+  background: var(--hover-bg-color);
+  color: var(--primary-color);
+}
+
+.page-number {
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.page-number.active {
+  background: var(--primary-color);
+  color: var(--bg-color);
+  border-color: var(--primary-color);
 }
 </style>

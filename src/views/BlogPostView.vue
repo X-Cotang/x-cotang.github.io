@@ -4,11 +4,12 @@
       <div class="sidebar-content">
         <div class="sidebar-header">
           <h2>Posts</h2>
+          <span class="post-count">{{ allPosts.length }} posts</span>
         </div>
 
         <div class="post-list">
           <div
-            v-for="post in allPosts"
+            v-for="post in paginatedPosts"
             :key="post.id"
             :class="{ active: currentPost?.slug === post.slug }"
             class="post-item"
@@ -17,6 +18,36 @@
             <span class="post-title" :data-text="post.title">{{ post.title }}</span>
             <span class="post-date">{{ formatDate(post.date) }}</span>
           </div>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="totalPages > 1" class="pagination">
+          <button
+            class="page-btn"
+            :disabled="currentPage === 1"
+            @click="changePage(currentPage - 1)"
+          >
+            ←
+          </button>
+
+          <div class="page-numbers">
+            <button
+              v-for="page in totalPages"
+              :key="page"
+              :class="['page-number', { active: page === currentPage }]"
+              @click="changePage(page)"
+            >
+              {{ page }}
+            </button>
+          </div>
+
+          <button
+            class="page-btn"
+            :disabled="currentPage === totalPages"
+            @click="changePage(currentPage + 1)"
+          >
+            →
+          </button>
         </div>
       </div>
     </aside>
@@ -120,6 +151,8 @@ const allPosts = ref([])
 const currentPost = ref(null)
 const loading = ref(true)
 const error = ref(null)
+const postsPerPage = ref(5) // Number of posts to show per page
+const currentPage = ref(1)
 
 const extractHeadings = (content) => {
   const parser = new DOMParser()
@@ -304,6 +337,22 @@ const metaTags = computed(() => {
 
 // Use the computed meta tags
 useHead(metaTags)
+
+// Add this computed property
+const paginatedPosts = computed(() => {
+  const start = (currentPage.value - 1) * postsPerPage.value
+  const end = start + postsPerPage.value
+  return allPosts.value.slice(start, end)
+})
+
+const totalPages = computed(() => {
+  return Math.ceil(allPosts.value.length / postsPerPage.value)
+})
+
+// Add this method
+const changePage = (page) => {
+  currentPage.value = page
+}
 </script>
 
 <style>
@@ -750,6 +799,14 @@ pre[class*='language-']::-webkit-scrollbar-thumb:hover {
   .post-content :deep(h2) {
     font-size: 1.5rem;
   }
+
+  .pagination {
+    margin-bottom: 1rem;
+  }
+
+  .page-numbers {
+    display: none; /* Hide page numbers on mobile, keep only arrows */
+  }
 }
 
 /* Add decorative elements to article title */
@@ -973,5 +1030,75 @@ pre[class*='language-']::-webkit-scrollbar-thumb:hover {
   font-size: 0.9rem;
   color: var(--text-muted-color);
   text-align: left;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.post-count {
+  font-size: 0.8rem;
+  color: var(--text-muted-color);
+  font-family: var(--monospace-font);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--subtle-border-color);
+}
+
+.page-numbers {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.page-btn,
+.page-number {
+  background: transparent;
+  border: 1px solid var(--subtle-border-color);
+  color: var(--text-color);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all var(--transition-speed) ease;
+  font-family: var(--monospace-font);
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-btn:not(:disabled):hover,
+.page-number:hover {
+  border-color: var(--primary-color);
+  background: var(--hover-bg-color);
+  color: var(--primary-color);
+}
+
+.page-number.active {
+  background: var(--primary-color);
+  color: var(--bg-color);
+  border-color: var(--primary-color);
+}
+
+/* Update existing styles */
+.post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 400px; /* Add minimum height to prevent layout shift */
 }
 </style>
