@@ -3,7 +3,7 @@ import { createWriteStream } from 'fs'
 import { loadBlogPosts } from '../src/utils/contentLoader'
 
 async function generateSitemap() {
-  const sitemap = new SitemapStream({ hostname: 'https://your-domain.com' })
+  const sitemap = new SitemapStream({ hostname: 'https://x-cotang.github.io/' })
 
   // Add static routes
   sitemap.write({ url: '/', changefreq: 'daily', priority: 1.0 })
