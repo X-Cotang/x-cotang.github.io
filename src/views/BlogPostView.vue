@@ -939,4 +939,39 @@ pre[class*='language-']::-webkit-scrollbar-thumb:hover {
   padding: 1em 0;
   user-select: none;
 }
+
+.post-content :deep(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  background: var(--bg-color);
+}
+
+.post-content :deep(th),
+.post-content :deep(td) {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--subtle-border-color);
+  text-align: left;
+}
+
+.post-content :deep(th) {
+  background: var(--hover-bg-color);
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.post-content :deep(tr:nth-child(even)) {
+  background: var(--hover-bg-color);
+}
+
+.post-content :deep(tr:hover) {
+  background: var(--hover-bg-color);
+}
+
+.post-content :deep(table caption) {
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--text-muted-color);
+  text-align: left;
+}
 </style>
