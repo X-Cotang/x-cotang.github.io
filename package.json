@@ -16,8 +16,10 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.4",
+    "@traptitech/markdown-it-katex": "^3.6.0",
     "@vueuse/head": "^2.0.0",
     "gray-matter": "^4.0.3",
+    "katex": "^0.16.22",
     "markdown-it": "^14.1.0",
     "marked": "^12.0.2",
     "pinia": "^3.0.1",

@@ -1,12 +1,10 @@
-import { marked } from 'marked'
+import md from './markdown'
 
 // Function to get all blog posts
 export async function loadBlogPosts() {
   const posts = []
-  const categoriesMap = {}
 
   try {
-    // Import all markdown files from the content/blog directory
     const modules = import.meta.glob('/src/content/blog/**/*.md', {
       eager: true,
       query: '?raw',
@@ -15,81 +13,54 @@ export async function loadBlogPosts() {
 
     for (const path in modules) {
       const content = modules[path]
+      const { frontmatter, markdown } = parseFrontmatter(content)
 
-      // Extract frontmatter manually
-      const frontmatterMatch = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n/)
-      if (!frontmatterMatch) {
-        continue
-      }
+      if (!frontmatter) continue
 
-      const frontmatter = frontmatterMatch[1]
-
-      const data = {}
-      frontmatter.split('\n').forEach((line) => {
-        const [key, ...valueParts] = line.split(':')
-        if (key && valueParts.length) {
-          const value = valueParts.join(':').trim()
-          try {
-            data[key.trim()] = JSON.parse(value)
-          } catch {
-            data[key.trim()] = value
-          }
-        }
-      })
-
-      // Create slug from path (remove .md extension and src/content/blog prefix)
       const slug = path.replace('/src/content/blog/', '').replace('.md', '').replace(/\//g, '-')
 
-      // Get the markdown content (everything after frontmatter)
-      const markdownContent = content.slice(frontmatterMatch[0].length).trim()
-
-      // Build post object with all metadata
-      const postData = {
-        ...data,
+      posts.push({
+        ...frontmatter,
         slug,
-        content: marked(markdownContent),
-        path: path,
-      }
-
-      posts.push(postData)
-
-      // Build category and subcategory structure
-      if (!categoriesMap[postData.category]) {
-        categoriesMap[postData.category] = {
-          id: postData.category,
-          name: capitalizeFirstLetter(postData.category),
-          subCategories: new Set(),
-        }
-      }
-
-      if (postData.subCategory) {
-        categoriesMap[postData.category].subCategories.add(postData.subCategory)
-      }
+        content: md.render(markdown),
+        path,
+      })
     }
 
-    // Convert subCategories sets to arrays
-    const categories = Object.values(categoriesMap).map((category) => ({
-      ...category,
-      subCategories: Array.from(category.subCategories).map(capitalizeFirstLetter).sort(),
-    }))
+    const categories = buildCategoryStructure(posts)
+    categories.unshift({ id: 'all', name: 'All', subCategories: [] })
 
-    // Add 'All' category
-    categories.unshift({
-      id: 'all',
-      name: 'All',
-      subCategories: [],
-    })
-
-    return {
-      posts,
-      categories,
-    }
+    return { posts, categories }
   } catch (error) {
     console.error('Error loading blog posts:', error)
-    return {
-      posts: [],
-      categories: [],
+    return { posts: [], categories: [] }
+  }
+}
+
+function parseFrontmatter(content) {
+  const match = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n/)
+  if (!match) return { frontmatter: null, markdown: '' }
+
+  const frontmatter = {}
+  match[1].split('\n').forEach((line) => {
+    const [key, ...valueParts] = line.split(':')
+    if (key && valueParts.length) {
+      const value = valueParts.join(':').trim()
+      frontmatter[key.trim()] = tryParseJSON(value)
     }
+  })
+
+  return {
+    frontmatter,
+    markdown: content.slice(match[0].length).trim(),
+  }
+}
+
+function tryParseJSON(value) {
+  try {
+    return JSON.parse(value)
+  } catch {
+    return value
   }
 }
 
@@ -133,4 +104,27 @@ export async function getPostsBySubCategory(category, subCategory, count = null)
   const sortedPosts = filteredPosts.sort((a, b) => new Date(b.date) - new Date(a.date))
 
   return count ? sortedPosts.slice(0, count) : sortedPosts
+}
+
+function buildCategoryStructure(posts) {
+  const categoriesMap = {}
+
+  posts.forEach((post) => {
+    if (!categoriesMap[post.category]) {
+      categoriesMap[post.category] = {
+        id: post.category,
+        name: capitalizeFirstLetter(post.category),
+        subCategories: new Set(),
+      }
+    }
+
+    if (post.subCategory) {
+      categoriesMap[post.category].subCategories.add(capitalizeFirstLetter(post.subCategory))
+    }
+  })
+
+  return Object.values(categoriesMap).map((category) => ({
+    ...category,
+    subCategories: Array.from(category.subCategories).sort(),
+  }))
 }

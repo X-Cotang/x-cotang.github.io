@@ -31,17 +31,18 @@ Brownian motion, or the Wiener process, is a continuous-time stochastic process 
 
 ### Mathematical Framework
 
-Asset prices are often modeled using **geometric Brownian motion (GBM)** to ensure prices remain positive, unlike standard Brownian motion which can go negative. The price \( S_t \) evolves according to:
-\[
+Asset prices are often modeled using **geometric Brownian motion (GBM)** to ensure prices remain positive, unlike standard Brownian motion which can go negative. The price $S_t$ evolves according to:
+
+$$
 dS_t = \mu S_t dt + \sigma S_t dW_t
-\]
+$$
 
-- \( S_t \): Asset price at time \( t \)
-- \( \mu \): Drift (expected return rate)
-- \( \sigma \): Volatility (price variability)
-- \( dW_t \): Increment of standard Brownian motion, where \( W_t \sim N(0, t) \)
+- $S_t$: Asset price at time $t$
+- $\mu$: Drift (expected return rate)
+- $\sigma$: Volatility (price variability)
+- $dW_t$: Increment of standard Brownian motion, where $W_t \sim N(0, t)$
 
-The increment \( dz_t = \sigma dW_t \) captures the random price change, scaled by volatility. GBM is used in the Black-Scholes model for option pricing, assuming continuous price paths without jumps.
+The increment $dz_t = \sigma dW_t$ captures the random price change, scaled by volatility. GBM is used in the Black-Scholes model for option pricing, assuming continuous price paths without jumps.
 
 ### Applications
 
@@ -51,14 +52,18 @@ The increment \( dz_t = \sigma dW_t \) captures the random price change, scaled 
 
 ### Example
 
-Consider a stock at $100 with a 5% annual drift (\( \mu = 0.05 \)) and 20% volatility (\( \sigma = 0.2 \)). Over one year, its price path can be simulated using:
-\[
+Consider a stock at $100 with a 5% annual drift ($\mu = 0.05$) and 20% volatility ($\sigma = 0.2$). Over one year, its price path can be simulated using:
+
+$$
 S_t = S_0 \cdot e^{(\mu - \frac{\sigma^2}{2})t + \sigma W_t}
-\]
-If \( W_t = 0.5 \), the price might be:
-\[
+$$
+
+If $W_t = 0.5$, the price might be:
+
+$$
 S_1 = 100 \cdot e^{(0.05 - \frac{0.2^2}{2}) \cdot 1 + 0.2 \cdot 0.5} \approx 100 \cdot e^{0.03 + 0.1} \approx 114.14
-\]
+$$
+
 This shows how Brownian motion drives random price changes.
 
 ### Limitations
@@ -75,20 +80,23 @@ A Poisson process models the occurrence of random, independent events over time,
 
 ### Mathematical Framework
 
-The number of orders \( N_t \) arriving by time \( t \) follows a Poisson distribution with rate \( \lambda \):
-\[
+The number of orders $N_t$ arriving by time $t$ follows a Poisson distribution with rate $\lambda$:
+
+$$
 P(N_t = n) = \frac{(\lambda t)^n e^{-\lambda t}}{n!}
-\]
-In trading, the arrival rate \( \lambda \) depends on the bid-ask spread \( \Delta \):
-\[
+$$
+
+In trading, the arrival rate $\lambda$ depends on the bid-ask spread $\Delta$:
+
+$$
 \lambda = A \cdot e^{-k \Delta}
-\]
+$$
 
-- \( A \): Base arrival rate
-- \( k \): Sensitivity to spread
-- \( \Delta \): Spread (ask price minus bid price)
+- $A$: Base arrival rate
+- $k$: Sensitivity to spread
+- $\Delta$: Spread (ask price minus bid price)
 
-A smaller spread increases \( \lambda \), attracting more orders, while a larger spread reduces order flow.
+A smaller spread increases $\lambda$, attracting more orders, while a larger spread reduces order flow.
 
 ### Applications
 
@@ -98,14 +106,18 @@ A smaller spread increases \( \lambda \), attracting more orders, while a larger
 
 ### Example
 
-A market maker sets a spread of \( \Delta = 0.01 \), with \( A = 10 \) orders per minute and \( k = 100 \). The arrival rate is:
-\[
+A market maker sets a spread of $\Delta = 0.01$, with $A = 10$ orders per minute and $k = 100$. The arrival rate is:
+
+$$
 \lambda = 10 \cdot e^{-100 \cdot 0.01} = 10 \cdot e^{-1} \approx 3.68
-\]
-If the spread widens to \( \Delta = 0.02 \):
-\[
+$$
+
+If the spread widens to $\Delta = 0.02$:
+
+$$
 \lambda = 10 \cdot e^{-100 \cdot 0.02} = 10 \cdot e^{-2} \approx 1.35
-\]
+$$
+
 This shows how wider spreads reduce order arrivals, affecting trading strategy.
 
 ### Limitations
@@ -118,31 +130,34 @@ The model assumes constant rates and independence, which may not hold during mar
 
 ### Definition and Role
 
-A market maker’s inventory \( q_t \) is the net quantity of shares held, resulting from buy and sell orders. Managing inventory is critical to avoid directional risk, where price movements against the inventory lead to losses.
+A market maker’s inventory $q_t$ is the net quantity of shares held, resulting from buy and sell orders. Managing inventory is critical to avoid directional risk, where price movements against the inventory lead to losses.
 
 ### Mathematical Framework
 
 Inventory evolves as:
-\[
+
+$$
 dq_t = dN_b - dN_a
-\]
+$$
 
-- \( dN_b \): Buy order increments (Poisson process with rate \( \lambda_b \))
-- \( dN_a \): Sell order increments (Poisson process with rate \( \lambda_a \))
+- $dN_b$: Buy order increments (Poisson process with rate $\lambda_b$)
+- $dN_a$: Sell order increments (Poisson process with rate $\lambda_a$)
 
-Market makers aim to keep \( q_t \approx 0 \) to minimize risk.
+Market makers aim to keep $q_t \approx 0$ to minimize risk.
 
 ### Strategies
 
-- **Spread Adjustment**: Widen the ask spread when long (\( q_t > 0 \)) to reduce buying; narrow the bid spread to encourage selling.
+- **Spread Adjustment**: Widen the ask spread when long ($q_t > 0$) to reduce buying; narrow the bid spread to encourage selling.
 - **Order Size Control**: Adjust order sizes to influence order flow ([Market Making](https://www.marketcalls.in/market-microstructure/understanding-market-making-inventory-management-a-traders-guide.html)).
 
 ### Example
 
-Starting with \( q_0 = 0 \), a market maker receives 4 buy orders (\( dN_b = 4 \)) and 2 sell orders (\( dN_a = 2 \)):
-\[
+Starting with $q_0 = 0$, a market maker receives 4 buy orders ($dN_b = 4$) and 2 sell orders ($dN_a = 2$):
+
+$$
 q_t = 0 + 4 - 2 = 2
-\]
+$$
+
 To reduce this long position, they might widen the ask spread, making it less attractive for buyers.
 
 ### Table: Inventory Scenarios
@@ -159,25 +174,27 @@ To reduce this long position, they might widen the ask spread, making it less at
 
 ### Definition and Role
 
-The cash account \( x_t \) tracks the market maker’s cash flow from transactions. The P&L combines this with the inventory’s market value to assess overall profitability.
+The cash account $x_t$ tracks the market maker’s cash flow from transactions. The P&L combines this with the inventory’s market value to assess overall profitability.
 
 ### Mathematical Framework
 
 The cash account evolves as:
-\[
-dx_t = p_a \cdot dN_a - p_b \cdot dN_b
-\]
 
-- \( p_a \): Ask price
-- \( p_b \): Bid price
-- \( dN_a \), \( dN_b \): Sell and buy order increments
+$$
+dx_t = p_a \cdot dN_a - p_b \cdot dN_b
+$$
+
+- $p_a$: Ask price
+- $p_b$: Bid price
+- $dN_a$, $dN_b$: Sell and buy order increments
 
 The total P&L is:
-\[
-P\&L_t = x_t + q_t \cdot s_t
-\]
 
-- \( s_t \): Current stock price
+$$
+P\&L_t = x_t + q_t \cdot s_t
+$$
+
+- $s_t$: Current stock price
 
 ### Applications
 
@@ -186,23 +203,29 @@ P\&L_t = x_t + q_t \cdot s_t
 
 ### Example
 
-Starting with \( x_0 = 0 \), \( q_0 = 0 \), a market maker executes:
+Starting with $x_0 = 0$, $q_0 = 0$, a market maker executes:
 
-- 3 buy orders at \( p_b = 50 \) (\( dN_b = 3 \))
-- 2 sell orders at \( p_a = 51 \) (\( dN_a = 2 \))
+- 3 buy orders at $p_b = 50$ ($dN_b = 3$)
+- 2 sell orders at $p_a = 51$ ($dN_a = 2$)
 
 Cash account:
-\[
+
+$$
 x_t = 0 + 51 \cdot 2 - 50 \cdot 3 = 102 - 150 = -48
-\]
+$$
+
 Inventory:
-\[
+
+$$
 q_t = 0 + 3 - 2 = 1
-\]
-With \( s_t = 52 \), P&L is:
-\[
+$$
+
+With $s_t = 52$, P&L is:
+
+$$
 P\&L_t = -48 + 1 \cdot 52 = 4
-\]
+$$
+
 The positive P&L reflects the inventory’s value offsetting the cash loss.
 
 ---
@@ -222,7 +245,7 @@ Monte Carlo simulation uses random sampling to model the probability of outcomes
 
 A market maker simulates 10,000 trading sessions with:
 
-- Random order arrivals (\( \lambda_b, \lambda_a \)).
+- Random order arrivals ($\lambda_b, \lambda_a$).
 - Price paths via GBM.
 - Spread adjustments.
 
@@ -247,19 +270,23 @@ The Avellaneda-Stoikov model optimizes market maker bid and ask prices, balancin
 ### Mathematical Framework
 
 The reservation price accounts for inventory skew:
-\[
-s(q_t, t, T, \sigma^2, \gamma) = q_t \cdot \gamma \cdot \sigma^2 \cdot (T - t)
-\]
-Optimal spreads:
-\[
-\delta^- = \frac{1}{2} \gamma \sigma^2 (T - t) + \frac{1}{\gamma} \ln(1 + \frac{\gamma}{\kappa^-})
-\]
-\[
-\delta^+ = \frac{1}{2} \gamma \sigma^2 (T - t) + \frac{1}{\gamma} \ln(1 + \frac{\gamma}{\kappa^+})
-\]
 
-- \( \gamma \): Risk aversion
-- \( \kappa^- \), \( \kappa^+ \): Order arrival parameters
+$$
+s(q_t, t, T, \sigma^2, \gamma) = q_t \cdot \gamma \cdot \sigma^2 \cdot (T - t)
+$$
+
+Optimal spreads:
+
+$$
+\delta^- = \frac{1}{2} \gamma \sigma^2 (T - t) + \frac{1}{\gamma} \ln(1 + \frac{\gamma}{\kappa^-})
+$$
+
+$$
+\delta^+ = \frac{1}{2} \gamma \sigma^2 (T - t) + \frac{1}{\gamma} \ln(1 + \frac{\gamma}{\kappa^+})
+$$
+
+- $\gamma$: Risk aversion
+- $\kappa^-$, $\kappa^+$: Order arrival parameters
 
 ### Applications
 
@@ -268,13 +295,16 @@ Optimal spreads:
 
 ### Example
 
-With \( q_t = 5 \), \( \gamma = 0.1 \), \( \sigma^2 = 0.04 \), \( T - t = 1 \), \( \kappa^- = \kappa^+ = 1 \):
-\[
+With $q_t = 5$, $\gamma = 0.1$, $\sigma^2 = 0.04$, $T - t = 1$, $\kappa^- = \kappa^+ = 1$:
+
+$$
 s = 5 \cdot 0.1 \cdot 0.04 \cdot 1 = 0.02
-\]
-\[
+$$
+
+$$
 \delta^- = \frac{1}{2} \cdot 0.1 \cdot 0.04 \cdot 1 + \frac{1}{0.1} \ln(1 + \frac{0.1}{1}) \approx 0.002 + 0.953 = 0.955
-\]
+$$
+
 The market maker sets asymmetric spreads to reduce inventory.
 
 ---
@@ -311,12 +341,15 @@ For a long inventory, a market maker widens the ask spread from 0.01 to 0.02, re
 ### Example
 
 A strategy with $10,000 profit, $4,000 loss, 60% win rate, and $1,500 max drawdown has:
-\[
+
+$$
 \text{Profit Factor} = \frac{10,000}{4,000} = 2.5
-\]
-\[
+$$
+
+$$
 \text{Win Rate} = 60\%
-\]
+$$
+
 These metrics indicate a profitable, stable strategy.
 
 ### Table: Strategy Metrics

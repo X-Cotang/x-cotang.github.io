@@ -74,7 +74,7 @@
           </div>
         </header>
 
-        <div class="post-content" v-html="currentPost.content"></div>
+        <div class="post-content" v-html="processedContent"></div>
       </article>
     </main>
 
@@ -142,6 +142,7 @@ import 'prismjs/components/prism-sql'
 // Import a theme (you can choose different themes)
 import 'prismjs/themes/prism-tomorrow.css'
 import { useHead } from '@vueuse/head'
+import 'katex/dist/katex.min.css'
 
 const router = useRouter()
 const route = useRoute()
@@ -353,6 +354,11 @@ const totalPages = computed(() => {
 const changePage = (page) => {
   currentPage.value = page
 }
+
+const processedContent = computed(() => {
+  if (!currentPost.value) return ''
+  return currentPost.value.content
+})
 </script>
 
 <style>
@@ -396,78 +402,35 @@ pre[class*='language-']::-webkit-scrollbar-thumb {
 pre[class*='language-']::-webkit-scrollbar-thumb:hover {
   background: #888;
 }
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 1em 0;
+}
+
+.katex {
+  font-size: 1.1em;
+}
+
+.katex-inline {
+  padding: 0 0.2em;
+}
+
+/* Ensure math expressions don't overflow on mobile */
+.katex-display > .katex {
+  max-width: 100%;
+}
+
+.katex-display > .katex > .katex-html {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-left: 2px;
+  padding-right: 2px;
+}
 </style>
 <style scoped>
-/* Apply glitch styles */
-/* .glitch-hover-container .glitch-target::before,
-.glitch-hover-container .glitch-target::after {
-  content: attr(data-text);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--bg-color); 
-  overflow: hidden;
-  clip-path: inset(50% 0 50% 0);
-}
-
-.glitch-hover-container .glitch-target::before {
-  color: var(--accent-color);
-  animation: glitch 0.3s steps(2, end) 0s infinite alternate-reverse paused;
-  text-shadow: -1px 0 var(--primary-color);
-}
-
-.glitch-hover-container .glitch-target::after {
-  color: var(--secondary-color);
-  animation: glitch 0.2s steps(2, end) 0.1s infinite alternate paused;
-  text-shadow: 1px 0 var(--accent-color);
-}
-
-.glitch-hover-container:hover .glitch-target::before,
-.glitch-hover-container:hover .glitch-target::after {
-  animation-play-state: running;
-}
-
-.glitch-target {
-  position: relative;
-}
-
-.glitch-button {
-  position: relative;
-  overflow: hidden;
-}
-
-.glitch-button .link-text::before,
-.glitch-button .link-text::after {
-  content: attr(data-text);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--bg-color); 
-  overflow: hidden;
-  clip-path: inset(50% 0 50% 0);
-}
-
-.glitch-button .link-text::before {
-  color: var(--accent-color);
-  animation: glitch 0.3s steps(2, end) 0s infinite alternate-reverse paused;
-  text-shadow: -1px 0 var(--primary-color);
-}
-
-.glitch-button .link-text::after {
-  color: var(--secondary-color);
-  animation: glitch 0.2s steps(2, end) 0.1s infinite alternate paused;
-  text-shadow: 1px 0 var(--accent-color);
-}
-
-.glitch-button:hover .link-text::before,
-.glitch-button:hover .link-text::after {
-  animation-play-state: running;
-} */
-
 .blog-post-container {
   display: flex;
   min-height: calc(100vh - var(--nav-height));
@@ -1100,5 +1063,20 @@ pre[class*='language-']::-webkit-scrollbar-thumb:hover {
   flex-direction: column;
   gap: 0.5rem;
   min-height: 400px; /* Add minimum height to prevent layout shift */
+}
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 1em 0;
+}
+
+.katex {
+  font-size: 1.1em;
+}
+
+/* For inline math */
+.katex-inline {
+  padding: 0 0.2em;
 }
 </style>
