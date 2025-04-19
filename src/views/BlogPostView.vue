@@ -97,9 +97,20 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { loadBlogPost, loadBlogPosts } from '@/utils/contentLoader'
+import Prism from 'prismjs'
+import 'prismjs/components/prism-javascript'
+import 'prismjs/components/prism-bash'
+import 'prismjs/components/prism-json'
+import 'prismjs/components/prism-python'
+import 'prismjs/components/prism-go'
+import 'prismjs/components/prism-java'
+import 'prismjs/components/prism-sql'
+// Import a theme (you can choose different themes)
+import 'prismjs/themes/prism-tomorrow.css'
+import { useHead } from '@vueuse/head'
 
 const router = useRouter()
 const route = useRoute()
@@ -109,6 +120,15 @@ const allPosts = ref([])
 const currentPost = ref(null)
 const loading = ref(true)
 const error = ref(null)
+
+const extractHeadings = (content) => {
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(content, 'text/html')
+  return Array.from(doc.querySelectorAll('h2')).map((h2) => ({
+    id: h2.id,
+    text: h2.textContent.trim(),
+  }))
+}
 
 onMounted(async () => {
   try {
@@ -124,29 +144,33 @@ onMounted(async () => {
       return
     }
 
-    // Extract headings from content
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(currentPost.value.content, 'text/html')
-    headings.value = Array.from(doc.querySelectorAll('h2')).map((h2) => ({
-      id: h2.id,
-      text: h2.textContent,
-    }))
+    // Extract headings after markdown processing
+    headings.value = extractHeadings(currentPost.value.content)
 
     // Set up intersection observer for headings
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            activeHeading.value = entry.target.id
-          }
-        })
-      },
-      { rootMargin: '-20% 0px -80% 0px' },
-    )
+    nextTick(() => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              activeHeading.value = entry.target.id
+            }
+          })
+        },
+        { rootMargin: '-20% 0px -80% 0px' },
+      )
 
-    headings.value.forEach((heading) => {
-      const element = document.getElementById(heading.id)
-      if (element) observer.observe(element)
+      headings.value.forEach((heading) => {
+        const element = document.getElementById(heading.id)
+        if (element) observer.observe(element)
+      })
+    })
+
+    // Highlight code blocks
+    nextTick(() => {
+      document.querySelectorAll('pre code').forEach((block) => {
+        Prism.highlightElement(block)
+      })
     })
   } catch (err) {
     console.error('Error loading post:', err)
@@ -187,29 +211,31 @@ const navigateToPost = async (slug) => {
     // Update the URL without triggering a full page reload
     router.push(`/blog/${slug}`, undefined, { shallow: true })
 
-    // Extract headings from content
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(currentPost.value.content, 'text/html')
-    headings.value = Array.from(doc.querySelectorAll('h2')).map((h2) => ({
-      id: h2.id,
-      text: h2.textContent,
-    }))
+    // Extract headings after markdown processing
+    headings.value = extractHeadings(currentPost.value.content)
 
     // Reset intersection observer
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            activeHeading.value = entry.target.id
-          }
-        })
-      },
-      { rootMargin: '-20% 0px -80% 0px' },
-    )
+    nextTick(() => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              activeHeading.value = entry.target.id
+            }
+          })
+        },
+        { rootMargin: '-20% 0px -80% 0px' },
+      )
 
-    headings.value.forEach((heading) => {
-      const element = document.getElementById(heading.id)
-      if (element) observer.observe(element)
+      headings.value.forEach((heading) => {
+        const element = document.getElementById(heading.id)
+        if (element) observer.observe(element)
+      })
+
+      // Re-highlight code blocks
+      document.querySelectorAll('pre code').forEach((block) => {
+        Prism.highlightElement(block)
+      })
     })
   } catch (err) {
     console.error('Error loading post:', err)
@@ -218,8 +244,110 @@ const navigateToPost = async (slug) => {
     loading.value = false
   }
 }
+
+const structuredData = computed(() => {
+  if (!currentPost.value) return ''
+
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: currentPost.value.title,
+    datePublished: currentPost.value.date,
+    description: currentPost.value.excerpt || currentPost.value.title,
+    image: currentPost.value.image,
+    author: {
+      '@type': 'Person',
+      name: 'Your Name', // Replace with actual author name
+    },
+  })
+})
+
+// Compute meta tags based on current post
+const metaTags = computed(() => {
+  if (!currentPost.value) return {}
+
+  // Ensure tags is an array or default to empty array
+  const tags = Array.isArray(currentPost.value.tags) ? currentPost.value.tags : []
+
+  return {
+    title: `${currentPost.value.title} - XCT Blog`,
+    meta: [
+      {
+        name: 'description',
+        content: currentPost.value.excerpt || currentPost.value.title,
+      },
+      {
+        property: 'og:title',
+        content: currentPost.value.title,
+      },
+      {
+        property: 'og:description',
+        content: currentPost.value.excerpt || currentPost.value.title,
+      },
+      {
+        property: 'og:image',
+        content: currentPost.value.image,
+      },
+      {
+        name: 'keywords',
+        content: tags.join(', '),
+      },
+    ],
+    script: [
+      {
+        type: 'application/ld+json',
+        children: structuredData.value,
+      },
+    ],
+  }
+})
+
+// Use the computed meta tags
+useHead(metaTags)
 </script>
 
+<style>
+pre[class*='language-'] {
+  border-radius: 8px;
+  margin: 1.5em 0;
+  padding: 1em;
+  overflow: auto;
+  background: #2d2d2d;
+}
+
+code[class*='language-'] {
+  font-family: 'Fira Code', Monaco, 'Courier New', Courier, monospace;
+  font-size: 0.9em;
+  line-height: 1.5;
+  direction: ltr;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  tab-size: 4;
+  hyphens: none;
+}
+
+/* Add some nice scrollbar styling */
+pre[class*='language-']::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+pre[class*='language-']::-webkit-scrollbar-track {
+  background: #1e1e1e;
+  border-radius: 4px;
+}
+
+pre[class*='language-']::-webkit-scrollbar-thumb {
+  background: #666;
+  border-radius: 4px;
+}
+
+pre[class*='language-']::-webkit-scrollbar-thumb:hover {
+  background: #888;
+}
+</style>
 <style scoped>
 /* Apply glitch styles */
 /* .glitch-hover-container .glitch-target::before,
@@ -763,5 +891,52 @@ const navigateToPost = async (slug) => {
 .error-state p {
   color: var(--text-muted-color);
   margin-bottom: 1rem;
+}
+
+.post-content :deep(pre[class*='language-']) {
+  position: relative;
+  margin: 2rem 0;
+  padding-top: 2.5rem !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.post-content :deep(pre[class*='language-'])::before {
+  content: attr(class);
+  position: absolute;
+  top: 0.5rem;
+  left: 1rem;
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: lowercase;
+  font-family: var(--monospace-font);
+}
+
+.post-content :deep(pre[class*='language-'])::after {
+  content: '';
+  position: absolute;
+  top: 2rem;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.post-content :deep(code[class*='language-']) {
+  padding: 0;
+  background: transparent;
+  text-shadow: none;
+}
+
+.post-content :deep(.line-numbers) {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3rem;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.2);
+  color: #888;
+  padding: 1em 0;
+  user-select: none;
 }
 </style>

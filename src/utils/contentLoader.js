@@ -6,26 +6,23 @@ export async function loadBlogPosts() {
   const categoriesMap = {}
 
   try {
-    console.log('Starting to load blog posts...')
-
     // Import all markdown files from the content/blog directory
-    const modules = import.meta.glob('/src/content/blog/**/*.md', { eager: true, as: 'raw' })
-    console.log('Found modules:', Object.keys(modules))
+    const modules = import.meta.glob('/src/content/blog/**/*.md', {
+      eager: true,
+      query: '?raw',
+      import: 'default',
+    })
 
     for (const path in modules) {
-      console.log('Processing file:', path)
       const content = modules[path]
-      console.log('File content:', content.substring(0, 100)) // Log first 100 chars to debug
 
       // Extract frontmatter manually
       const frontmatterMatch = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n/)
       if (!frontmatterMatch) {
-        console.log('No frontmatter found in:', path)
         continue
       }
 
       const frontmatter = frontmatterMatch[1]
-      console.log('Frontmatter found:', frontmatter)
 
       const data = {}
       frontmatter.split('\n').forEach((line) => {
@@ -54,7 +51,6 @@ export async function loadBlogPosts() {
         path: path,
       }
 
-      console.log('Created post data:', postData)
       posts.push(postData)
 
       // Build category and subcategory structure
@@ -83,9 +79,6 @@ export async function loadBlogPosts() {
       name: 'All',
       subCategories: [],
     })
-
-    console.log('Final posts:', posts)
-    console.log('Final categories:', categories)
 
     return {
       posts,
