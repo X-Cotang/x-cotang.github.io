@@ -447,10 +447,9 @@
     <div class="relative z-10 container mx-auto px-6 py-12">
         <!-- Navigation -->
         <nav class="flex justify-between items-center mb-16 border-b border-gray-800 pb-4">
-            <div class="text-2xl font-bold tracking-widest glitch" data-text="SYSTEM.ROOT">SYSTEM.ROOT</div>
+            <div class="text-2xl font-bold tracking-widest glitch" data-text="NOW.YOU.SEE_ME">NOW.YOU.SEE_ME</div>
             <ul class="flex space-x-6 text-sm">
                 <li><a href="#hero" class="hover:text-white text-gray-500 transition-colors">[HOME]</a></li>
-                <li><a href="#about" class="hover:text-white text-gray-500 transition-colors">[ABOUT]</a></li>
                 <li><a href="#projects" class="hover:text-white text-gray-500 transition-colors">[PROJECTS]</a></li>
                 <li><a href="#contact" class="hover:text-white text-gray-500 transition-colors">[CONTACT]</a></li>
             </ul>
@@ -480,72 +479,14 @@
             </div>
         </section>
 
-        <!-- About / Trace Section -->
-        <section id="about" class="mb-24">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                <div class="hud-card p-8">
-                    <h2 class="text-3xl font-bold mb-6 border-b border-gray-800 pb-2">:: SYSTEM_TRACE ::</h2>
-                    <div class="space-y-4 font-mono text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">IP_ADDRESS:</span>
-                            <span id="ip-address" class="text-green-400">LOADING...</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">LOCATION:</span>
-                            <span id="location" class="text-white">TRACING...</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">ISP:</span>
-                            <span id="isp" class="text-white">ANALYZING...</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">OS_PLATFORM:</span>
-                            <span id="os-platform" class="text-white">DETECTING...</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">BROWSER:</span>
-                            <span id="browser" class="text-white">IDENTIFYING...</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">CPU_CORES:</span>
-                            <span id="cpu-cores" class="text-white">COUNTING...</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">TIMEZONE:</span>
-                            <span id="timezone" class="text-white">CALCULATING...</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">FINGERPRINT:</span>
-                            <span id="fingerprint-hash" class="text-xs text-gray-600 break-all">GENERATING...</span>
-                        </div>
-                        <div class="mt-6 pt-4 border-t border-gray-800">
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-500">STATUS:</span>
-                                <span id="trace-status" class="text-yellow-500 animate-pulse">ESTABLISHING
-                                    CONNECTION...</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex flex-col justify-center">
-                    <h2 class="text-3xl font-bold mb-6">:: ABOUT_ME ::</h2>
-                    <p class="text-gray-400 mb-6 leading-relaxed">
-                        I am a creative developer with a passion for building unique digital experiences.
-                        My work focuses on performance, accessibility, and cutting-edge design.
-                        I love to experiment with new technologies and push the boundaries of what is possible on the
-                        web.
-                    </p>
-                    <div id="binary-text-container"
-                        class="font-mono text-xs text-gray-600 leading-tight overflow-hidden h-32 opacity-50">
-                        <p>01010111 01000101 01001100 01000011</p>
-                        <p>01001111 01001101 01000101 00100000</p>
-                        <p>01010100 01001111 00100000 01001101</p>
-                        <p>01011001 00100000 01010111 01001111</p>
-                        <p>01010010 01001100 01000100 00101110</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <div id="binary-text-container"
+            class="font-mono text-xs text-gray-600 leading-tight overflow-hidden h-32 opacity-50">
+            <p>01010111 01000101 01001100 01000011</p>
+            <p>01001111 01001101 01000101 00100000</p>
+            <p>01010100 01001111 00100000 01001101</p>
+            <p>01011001 00100000 01010111 01001111</p>
+            <p>01010010 01001100 01000100 00101110</p>
+        </div>
 
         <!-- Projects Section -->
         <section id="projects" class="mb-24">
