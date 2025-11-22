@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Override // Portfolio</title>
+    <title>Now you see me</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <!-- Fonts: Tech Mono and VT323 for that terminal feel -->
@@ -17,10 +17,9 @@
             --secondary-color: #888888;
             --dark-bg: #050505;
             --glass: rgba(255, 255, 255, 0.05);
-
-            /* TikTok/Cyberpunk Glitch Colors */
             --glitch-red: #FF0050;
             --glitch-cyan: #00F2EA;
+            --bg-gradient: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
         }
 
         body {
@@ -29,6 +28,7 @@
             background-color: var(--dark-bg);
             color: var(--main-color);
             font-family: 'Share Tech Mono', monospace;
+            transition: background-color 0.5s ease, color 0.5s ease;
         }
 
         /* Custom Scrollbar */
@@ -53,7 +53,74 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+            background: var(--bg-gradient);
+            transition: background 0.5s ease;
+        }
+
+        /* --- THEMES --- */
+        /* Comic Theme */
+        body.theme-comic {
+            --main-color: #000000;
+            --secondary-color: #333333;
+            --dark-bg: #ffffff;
+            --glass: rgba(255, 255, 255, 0.9);
+            --glitch-red: #ff0055;
+            --glitch-cyan: #0099ff;
+            --bg-gradient: repeating-linear-gradient(45deg,
+                    #ffffff,
+                    #ffffff 10px,
+                    #f0f0f0 10px,
+                    #f0f0f0 20px);
+        }
+
+        body.theme-comic .hud-card {
+            border: 3px solid #000;
+            box-shadow: 5px 5px 0px #000;
+            background: #fff;
+            color: #000;
+        }
+
+        body.theme-comic .hud-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 8px 8px 0px #000;
+            background: #ffff00;
+            /* Yellow highlight */
+        }
+
+        body.theme-comic .text-gray-400,
+        body.theme-comic .text-gray-500,
+        body.theme-comic .text-gray-600 {
+            color: #333 !important;
+        }
+
+        body.theme-comic h1,
+        body.theme-comic h2,
+        body.theme-comic h3 {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0px #ccc;
+        }
+
+        /* Space Theme */
+        body.theme-space {
+            --main-color: #aaddff;
+            --secondary-color: #6644aa;
+            --dark-bg: #050510;
+            --glass: rgba(10, 10, 30, 0.6);
+            --glitch-red: #ff00cc;
+            --glitch-cyan: #00ffff;
+            --bg-gradient: radial-gradient(circle at center, #1a1a40 0%, #000000 100%);
+        }
+
+        body.theme-space .hud-card {
+            border: 1px solid rgba(100, 200, 255, 0.3);
+            box-shadow: 0 0 20px rgba(100, 100, 255, 0.2);
+            background: rgba(10, 10, 30, 0.7);
+        }
+
+        body.theme-space .hud-card:hover {
+            box-shadow: 0 0 30px rgba(0, 200, 255, 0.4);
+            border-color: #fff;
         }
 
         /* --- IMPROVED TIKTOK STYLE GLITCH EFFECT --- */
@@ -468,13 +535,12 @@
                 Specialized in high-performance web applications and immersive interfaces.
             </p>
             <div class="flex space-x-4">
-                <button
-                    class="px-8 py-3 border border-white hover:bg-white hover:text-black transition-all duration-300 font-bold">
-                    INITIATE_CONTACT()
-                </button>
-                <button
-                    class="px-8 py-3 border border-gray-600 text-gray-400 hover:border-white hover:text-white transition-all duration-300">
-                    VIEW_LOGS()
+                <button onclick="switchTheme()"
+                    class="px-8 py-3 border border-white hover:bg-white hover:text-black transition-all duration-300 font-bold group relative overflow-hidden">
+                    <span class="relative z-10">EXPLORE_THEMES()</span>
+                    <div
+                        class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20 translate-x-[-100%] group-hover:animate-shine">
+                    </div>
                 </button>
             </div>
         </section>
@@ -678,13 +744,13 @@
             const cpuCores = navigator.hardwareConcurrency || "N/A";
             const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "N/A";
 
-            osElement.textContent = osPlatform;
-            browserElement.textContent = browserName;
-            cpuElement.textContent = `${cpuCores} Cores`;
-            timezoneElement.textContent = userTimezone;
+            if (osElement) osElement.textContent = osPlatform;
+            if (browserElement) browserElement.textContent = browserName;
+            if (cpuElement) cpuElement.textContent = `${cpuCores} Cores`;
+            if (timezoneElement) timezoneElement.textContent = userTimezone;
 
             const fingerprint = generateCanvasFingerprint();
-            hashElement.textContent = fingerprint;
+            if (hashElement) hashElement.textContent = fingerprint;
 
             fetch(ipApiUrl)
                 .then(response => {
@@ -693,27 +759,31 @@
                 })
                 .then(data => {
                     if (data.ip) {
-                        ipElement.textContent = data.ip;
+                        if (ipElement) ipElement.textContent = data.ip;
                         let locationStr = data.city;
                         if (data.region) locationStr += `, ${data.region}`;
                         if (data.country_name) locationStr += `, ${data.country_name}`;
-                        locationElement.textContent = locationStr || "Unknown Location";
-                        ispElement.textContent = data.org || "Unknown ISP";
-                        statusElement.textContent = "CONNECTED (Secure)";
-                        statusElement.classList.remove('text-yellow-500', 'animate-pulse');
-                        statusElement.classList.add('text-green-500');
+                        if (locationElement) locationElement.textContent = locationStr || "Unknown Location";
+                        if (ispElement) ispElement.textContent = data.org || "Unknown ISP";
+                        if (statusElement) {
+                            statusElement.textContent = "CONNECTED (Secure)";
+                            statusElement.classList.remove('text-yellow-500', 'animate-pulse');
+                            statusElement.classList.add('text-green-500');
+                        }
                     } else {
                         throw new Error("Invalid IP API response.");
                     }
                 })
                 .catch(error => {
                     console.error("Error fetching IP info:", error);
-                    ipElement.textContent = "ERROR_FETCHING_IP";
-                    locationElement.textContent = "LOC_DATA_UNAVAILABLE";
-                    ispElement.textContent = "ISP_DATA_UNAVAILABLE";
-                    statusElement.textContent = "FAILED (Check Firewall)";
-                    statusElement.classList.remove('text-yellow-500', 'animate-pulse');
-                    statusElement.classList.add('text-red-500');
+                    if (ipElement) ipElement.textContent = "ERROR_FETCHING_IP";
+                    if (locationElement) locationElement.textContent = "LOC_DATA_UNAVAILABLE";
+                    if (ispElement) ispElement.textContent = "ISP_DATA_UNAVAILABLE";
+                    if (statusElement) {
+                        statusElement.textContent = "FAILED (Check Firewall)";
+                        statusElement.classList.remove('text-yellow-500', 'animate-pulse');
+                        statusElement.classList.add('text-red-500');
+                    }
                 });
         }
 
@@ -871,6 +941,18 @@
                     p.innerHTML = glitchedContent;
                 });
             }, 150);
+        }
+
+        // --- THEME SWITCHER LOGIC ---
+        const themes = ['', 'theme-comic', 'theme-space'];
+        let currentThemeIndex = 0;
+
+        function switchTheme() {
+            currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+            document.body.className = themes[currentThemeIndex];
+
+            const themeNames = ['COOL', 'COMIC', 'SPACE'];
+            console.log(`Switched to ${themeNames[currentThemeIndex]} theme`);
         }
 
         // --- MODAL & CAROUSEL LOGIC ---
