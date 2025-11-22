@@ -57,13 +57,16 @@
             transition: background 0.5s ease;
         }
 
-        /* --- THEMES --- */
-        /* Comic Theme */
+        /* --- THEMES & LAYOUT OVERRIDES --- */
+
+        /* 1. COOL (Default) - Uses standard Tailwind classes in HTML */
+
+        /* 2. COMIC THEME */
         body.theme-comic {
             --main-color: #000000;
             --secondary-color: #333333;
             --dark-bg: #ffffff;
-            --glass: rgba(255, 255, 255, 0.9);
+            --glass: rgba(255, 255, 255, 0.95);
             --glitch-red: #ff0055;
             --glitch-cyan: #0099ff;
             --bg-gradient: repeating-linear-gradient(45deg,
@@ -73,18 +76,84 @@
                     #f0f0f0 20px);
         }
 
+        /* Comic Layout Overrides */
+        body.theme-comic .container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            padding: 2rem;
+            border: 4px solid #000;
+            background: #fff;
+            box-shadow: 15px 15px 0px rgba(0, 0, 0, 0.2);
+            max-width: 95%;
+        }
+
+        @media (min-width: 1024px) {
+            body.theme-comic .container {
+                grid-template-columns: 1fr 1fr;
+                grid-template-areas:
+                    "nav nav"
+                    "hero projects"
+                    "contact projects";
+                align-items: start;
+            }
+
+            body.theme-comic nav {
+                grid-area: nav;
+                border-bottom: 4px solid #000;
+                padding-bottom: 1rem;
+                margin-bottom: 0 !important;
+            }
+
+            body.theme-comic #hero {
+                grid-area: hero;
+                border-right: 4px solid #000;
+                padding-right: 2rem;
+                height: 100%;
+                justify-content: start;
+                padding-top: 2rem;
+            }
+
+            body.theme-comic #projects {
+                grid-area: projects;
+                padding-left: 2rem;
+                padding-top: 2rem;
+            }
+
+            body.theme-comic #contact {
+                grid-area: contact;
+                border-top: 4px solid #000;
+                border-right: 4px solid #000;
+                padding: 2rem;
+                margin-bottom: 0;
+            }
+
+            /* Hide binary text in comic mode to clean up layout */
+            body.theme-comic #binary-text-container {
+                display: none;
+            }
+        }
+
         body.theme-comic .hud-card {
             border: 3px solid #000;
             box-shadow: 5px 5px 0px #000;
             background: #fff;
             color: #000;
+            border-radius: 0;
         }
 
         body.theme-comic .hud-card:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 8px 8px 0px #000;
+            transform: translate(-4px, -4px);
+            box-shadow: 9px 9px 0px #000;
             background: #ffff00;
-            /* Yellow highlight */
+        }
+
+        body.theme-comic h1,
+        body.theme-comic h2 {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 3px 3px 0px #ccc;
+            font-weight: 900;
         }
 
         body.theme-comic .text-gray-400,
@@ -93,15 +162,7 @@
             color: #333 !important;
         }
 
-        body.theme-comic h1,
-        body.theme-comic h2,
-        body.theme-comic h3 {
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 2px 2px 0px #ccc;
-        }
-
-        /* Space Theme */
+        /* 3. SPACE THEME */
         body.theme-space {
             --main-color: #aaddff;
             --secondary-color: #6644aa;
@@ -112,18 +173,45 @@
             --bg-gradient: radial-gradient(circle at center, #1a1a40 0%, #000000 100%);
         }
 
+        /* Space Layout Overrides */
+        body.theme-space .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        body.theme-space nav {
+            justify-content: center;
+            border-bottom: 1px solid rgba(100, 200, 255, 0.3);
+        }
+
+        body.theme-space nav ul {
+            margin-left: 2rem;
+        }
+
+        body.theme-space #hero {
+            align-items: center;
+            text-align: center;
+        }
+
+        body.theme-space #hero h1 {
+            text-shadow: 0 0 20px var(--main-color);
+        }
+
         body.theme-space .hud-card {
             border: 1px solid rgba(100, 200, 255, 0.3);
             box-shadow: 0 0 20px rgba(100, 100, 255, 0.2);
             background: rgba(10, 10, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
         }
 
         body.theme-space .hud-card:hover {
-            box-shadow: 0 0 30px rgba(0, 200, 255, 0.4);
+            box-shadow: 0 0 40px rgba(0, 200, 255, 0.4);
             border-color: #fff;
+            transform: scale(1.02);
         }
 
-        /* --- IMPROVED TIKTOK STYLE GLITCH EFFECT --- */
+        /* --- COMMON STYLES --- */
         .glitch {
             position: relative;
             color: var(--main-color);
@@ -217,7 +305,7 @@
             }
         }
 
-        /* HUD Card - Monochrome Style */
+        /* HUD Card */
         .hud-card {
             background: var(--glass);
             border: 1px solid var(--main-color);
@@ -683,9 +771,147 @@
     </div>
 
     <script>
+        // --- SCENE MANAGER (Three.js) ---
+        const SceneManager = {
+            scene: null,
+            camera: null,
+            renderer: null,
+            objects: [],
+            animationId: null,
+
+            init: function () {
+                this.scene = new THREE.Scene();
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(window.devicePixelRatio);
+
+                const container = document.getElementById('canvas-container');
+                container.innerHTML = '';
+                container.appendChild(this.renderer.domElement);
+
+                window.addEventListener('resize', () => {
+                    this.camera.aspect = window.innerWidth / window.innerHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+            },
+
+            clear: function () {
+                while (this.scene.children.length > 0) {
+                    this.scene.remove(this.scene.children[0]);
+                }
+                this.objects = [];
+            },
+
+            // THEME 1: COOL (Wireframe Icosahedron)
+            loadCoolTheme: function () {
+                this.clear();
+                this.scene.fog = new THREE.FogExp2(0x000000, 0.02);
+                this.camera.position.z = 5;
+
+                const geometry = new THREE.IcosahedronGeometry(2, 1);
+                const material = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.15 });
+                const core = new THREE.Mesh(geometry, material);
+                this.scene.add(core);
+                this.objects.push({ mesh: core, rotX: 0.002, rotY: 0.005 });
+
+                const innerGeo = new THREE.IcosahedronGeometry(1, 0);
+                const innerMat = new THREE.MeshBasicMaterial({ color: 0x222222, wireframe: true });
+                const innerCore = new THREE.Mesh(innerGeo, innerMat);
+                this.scene.add(innerCore);
+                this.objects.push({ mesh: innerCore, rotX: -0.005, rotY: -0.01 });
+
+                // Particles
+                const particlesGeometry = new THREE.BufferGeometry();
+                const particlesCount = 700;
+                const posArray = new Float32Array(particlesCount * 3);
+                for (let i = 0; i < particlesCount * 3; i++) posArray[i] = (Math.random() - 0.5) * 25;
+                particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+                const particlesMaterial = new THREE.PointsMaterial({ size: 0.04, color: 0xffffff, transparent: true, opacity: 0.6 });
+                const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+                this.scene.add(particlesMesh);
+                this.objects.push({ mesh: particlesMesh, rotX: 0.0001, rotY: 0.0001 });
+            },
+
+            // THEME 2: COMIC (Floating Cubes)
+            loadComicTheme: function () {
+                this.clear();
+                this.scene.fog = null;
+                this.camera.position.z = 8;
+
+                // Create floating cubes
+                for (let i = 0; i < 15; i++) {
+                    const size = Math.random() * 1.0 + 0.5;
+                    const geometry = new THREE.BoxGeometry(size, size, size);
+                    const colors = [0xff0055, 0x0099ff, 0xffff00, 0x000000];
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+
+                    const material = new THREE.MeshBasicMaterial({ color: color });
+                    const cube = new THREE.Mesh(geometry, material);
+
+                    const edges = new THREE.EdgesGeometry(geometry);
+                    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 }));
+                    cube.add(line);
+
+                    cube.position.set((Math.random() - 0.5) * 15, (Math.random() - 0.5) * 15, (Math.random() - 0.5) * 5);
+                    this.scene.add(cube);
+                    this.objects.push({
+                        mesh: cube,
+                        rotX: Math.random() * 0.02,
+                        rotY: Math.random() * 0.02
+                    });
+                }
+            },
+
+            // THEME 3: SPACE (Warp Speed)
+            loadSpaceTheme: function () {
+                this.clear();
+                this.scene.fog = new THREE.FogExp2(0x0b0b1e, 0.002);
+                this.camera.position.z = 1000;
+
+                const starGeo = new THREE.BufferGeometry();
+                const starCount = 6000;
+                const posArray = new Float32Array(starCount * 3);
+                for (let i = 0; i < starCount * 3; i++) {
+                    posArray[i] = (Math.random() - 0.5) * 600;
+                }
+                starGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+                const starMat = new THREE.PointsMaterial({
+                    color: 0xaaaaaa,
+                    size: 0.7,
+                    transparent: true
+                });
+                const starMesh = new THREE.Points(starGeo, starMat);
+                this.scene.add(starMesh);
+                this.objects.push({ mesh: starMesh, type: 'stars' });
+            },
+
+            animate: function () {
+                this.animationId = requestAnimationFrame(this.animate.bind(this));
+
+                this.objects.forEach(obj => {
+                    if (obj.type === 'stars') {
+                        const positions = obj.mesh.geometry.attributes.position.array;
+                        for (let i = 2; i < positions.length; i += 3) {
+                            positions[i] += 3;
+                            if (positions[i] > 200) positions[i] = -400;
+                        }
+                        obj.mesh.geometry.attributes.position.needsUpdate = true;
+                        obj.mesh.rotation.z += 0.0005;
+                    } else {
+                        if (obj.rotX) obj.mesh.rotation.x += obj.rotX;
+                        if (obj.rotY) obj.mesh.rotation.y += obj.rotY;
+                    }
+                });
+
+                this.renderer.render(this.scene, this.camera);
+            }
+        };
+
         // --- UTILITY: Simple Hashing Function (SHA-256 Mock) ---
         function hashString(str) {
-            let hash = 2166136261; // FNV_offset_basis
+            let hash = 2166136261;
             for (let i = 0; i < str.length; i++) {
                 hash ^= str.charCodeAt(i);
                 hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
@@ -869,8 +1095,6 @@
             }, 500);
         }
 
-        window.onload = runBootSequence;
-
         // --- TYPEWRITER EFFECT ---
         const texts = ["WEB DEVELOPER", "CREATIVE CODER", "HACKER", "TRADER", "PENTESTER"];
         let count = 0;
@@ -901,7 +1125,6 @@
         function getRandomBinary() { return Math.floor(Math.random() * 2).toString(); }
         function getRandomHex() { const hexChars = '0123456789ABCDEF'; return hexChars.charAt(Math.floor(Math.random() * hexChars.length)); }
         function startBinaryGlitch() {
-            // Note: binaryDigits elements might not exist in this simplified HTML, so we check
             if (binaryDigits[0]) setInterval(() => { binaryDigits[0].textContent = getRandomBinary(); }, 50);
             if (binaryDigits[1]) setInterval(() => { binaryDigits[1].textContent = getRandomHex(); }, 80);
         }
@@ -951,8 +1174,10 @@
             currentThemeIndex = (currentThemeIndex + 1) % themes.length;
             document.body.className = themes[currentThemeIndex];
 
-            const themeNames = ['COOL', 'COMIC', 'SPACE'];
-            console.log(`Switched to ${themeNames[currentThemeIndex]} theme`);
+            // Switch 3D Scene
+            if (currentThemeIndex === 0) SceneManager.loadCoolTheme();
+            else if (currentThemeIndex === 1) SceneManager.loadComicTheme();
+            else if (currentThemeIndex === 2) SceneManager.loadSpaceTheme();
         }
 
         // --- MODAL & CAROUSEL LOGIC ---
@@ -975,14 +1200,9 @@
             if (projectData[projectId]) {
                 currentImages = projectData[projectId];
                 currentImageIndex = 0;
-
-                // Update Image
                 modalImage.src = currentImages[0];
-
-                // Update Counter
                 counter.textContent = `1 / ${currentImages.length}`;
 
-                // Show/Hide Nav Buttons based on image count
                 if (currentImages.length > 1) {
                     prevBtn.style.display = 'block';
                     nextBtn.style.display = 'block';
@@ -992,7 +1212,6 @@
                 }
 
                 modal.style.display = 'flex';
-                // Force reflow
                 void modal.offsetWidth;
                 modal.classList.add('active');
                 document.body.style.overflow = 'hidden';
@@ -1041,76 +1260,13 @@
             }
         }
 
-        // --- THREE.JS SCENE ---
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x000000, 0.02);
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-        const geometry = new THREE.IcosahedronGeometry(2, 1);
-        const material = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.15 });
-        const core = new THREE.Mesh(geometry, material);
-        scene.add(core);
-
-        const innerGeo = new THREE.IcosahedronGeometry(1, 0);
-        const innerMat = new THREE.MeshBasicMaterial({ color: 0x222222, wireframe: true });
-        const innerCore = new THREE.Mesh(innerGeo, innerMat);
-        scene.add(innerCore);
-
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 700;
-        const posArray = new Float32Array(particlesCount * 3);
-        for (let i = 0; i < particlesCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 25;
-        }
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particlesMaterial = new THREE.PointsMaterial({ size: 0.04, color: 0xffffff, transparent: true, opacity: 0.6 });
-        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particlesMesh);
-
-        camera.position.z = 5;
-
-        let mouseX = 0;
-        let mouseY = 0;
-        let targetX = 0;
-        let targetY = 0;
-        const windowHalfX = window.innerWidth / 2;
-        const windowHalfY = window.innerHeight / 2;
-
-        document.addEventListener('mousemove', (event) => {
-            mouseX = (event.clientX - windowHalfX);
-            mouseY = (event.clientY - windowHalfY);
-        });
-
-        const clock = new THREE.Clock();
-
-        function animate() {
-            requestAnimationFrame(animate);
-            const elapsedTime = clock.getElapsedTime();
-            targetX = mouseX * 0.001;
-            targetY = mouseY * 0.001;
-            core.rotation.y += 0.005;
-            core.rotation.x += 0.002;
-            innerCore.rotation.y -= 0.01;
-            innerCore.rotation.x -= 0.005;
-            core.rotation.y += 0.05 * (targetX - core.rotation.y);
-            core.rotation.x += 0.05 * (targetY - core.rotation.x);
-            const scale = 1 + Math.sin(elapsedTime * 2) * 0.05;
-            core.scale.set(scale, scale, scale);
-            particlesMesh.rotation.y = elapsedTime * 0.05;
-            particlesMesh.rotation.x = mouseY * 0.0001;
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+        // Init
+        window.onload = function () {
+            SceneManager.init();
+            SceneManager.loadCoolTheme(); // Default
+            SceneManager.animate();
+            runBootSequence();
+        };
     </script>
 </body>
 
